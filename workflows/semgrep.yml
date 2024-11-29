@@ -1,0 +1,28 @@
+name: semgrep
+
+on:
+  pull_request: {}
+  push: {}
+  workflow_dispatch: {}
+            
+jobs:
+  semgrep:
+    name: sast
+    runs-on: ubuntu-latest
+
+    container:
+      image: semgrep/semgrep
+
+    if: (github.actor != 'dependabot[bot]')
+
+    steps:
+      - name: Checkout repository
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{env.TEST_REPOSITORY}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.TEST_REPOSITORY}}
+      - uses: ./rules
+        with:
+          additional_config: '--config --error --output semgrep-results.txt'
+          fail_on_findings: true
